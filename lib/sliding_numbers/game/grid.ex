@@ -39,7 +39,7 @@ defmodule SlidingNumbers.Game.Grid do
   def new(size) when is_integer(size) and size >= 2 do
     random_index = :rand.uniform(size * size) - 1
     coord = index_to_coord(random_index, size)
-    %Grid{size: size, cells: create_cells(size, [{coord, 1}])}
+    %Grid{size: size, cells: create_cells(size, [{coord, 2}])}
   end
 
   @doc """

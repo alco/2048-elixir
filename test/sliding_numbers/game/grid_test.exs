@@ -12,7 +12,7 @@ defmodule SlidingNumbers.Game.GridTest do
       end
     end
 
-    test "creates a grid that has a single non-empty cell with the number 1 in it" do
+    test "creates a grid that has a single non-empty cell with the number 2 in it" do
       for size <- 2..10 do
         grid = Grid.new(size)
 
@@ -20,7 +20,7 @@ defmodule SlidingNumbers.Game.GridTest do
           Enum.reduce(1..(size * size), {0, 0}, fn i, {num_empty, num_non_empty} ->
             case elem(grid.cells, i - 1) do
               0 -> {num_empty + 1, num_non_empty}
-              1 -> {num_empty, num_non_empty + 1}
+              2 -> {num_empty, num_non_empty + 1}
             end
           end)
 
