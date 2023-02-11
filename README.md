@@ -1,18 +1,52 @@
-# SlidingNumbers
+# 2048
 
-To start your Phoenix server:
+This is a sliding tile puzzle game implemented in Elixir.
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+_#Elixir_ _#Phoenix_ _#LiveView_ _#SVG_
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Single-player mode
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+_Not yet implemented._
 
-## Learn more
+## Multi-player mode
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+_Not yet implemented._
+
+## Interactive shell mode
+
+Launch the Elixir interactive shell with `iex -S mix` and start a local game session with `SN.start_local(<grid size>)`:
+
+```
+iex(1)> SN.start_local(4)
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[0, 1, 0, 0]
+[0, 0, 0, 0]
+Enter a direction for the next move and press ENTER (r/l/u/d): r
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[1, 0, 0, 1]
+[0, 0, 0, 0]
+Enter a direction for the next move and press ENTER (r/l/u/d): l
+[0, 0, 1, 0]
+[0, 0, 0, 0]
+[2, 0, 0, 0]
+[0, 0, 0, 0]
+Enter a direction for the next move and press ENTER (r/l/u/d): u
+[2, 0, 1, 0]
+[0, 0, 0, 0]
+[0, 0, 1, 0]
+[0, 0, 0, 0]
+Enter a direction for the next move and press ENTER (r/l/u/d): d
+[0, 1, 0, 0]
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[2, 0, 2, 0]
+Enter a direction for the next move and press ENTER (r/l/u/d): l
+[1, 1, 0, 0]
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[4, 0, 0, 0]
+
+...
+```
