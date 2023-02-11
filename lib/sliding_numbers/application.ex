@@ -9,13 +9,13 @@ defmodule SlidingNumbers.Application do
   def start(_type, _args) do
     children = [
       # Start the Telemetry supervisor
-      SlidingNumbersWeb.Telemetry,
+      ## SlidingNumbersWeb.Telemetry,
       # Start the Ecto repository
-      SlidingNumbers.Repo,
+      ## SlidingNumbers.Repo,
       # Start the PubSub system
-      {Phoenix.PubSub, name: SlidingNumbers.PubSub},
+      ## {Phoenix.PubSub, name: SlidingNumbers.PubSub},
       # Start the Endpoint (http/https)
-      SlidingNumbersWeb.Endpoint
+      ## SlidingNumbersWeb.Endpoint
       # Start a worker by calling: SlidingNumbers.Worker.start_link(arg)
       # {SlidingNumbers.Worker, arg}
     ]
