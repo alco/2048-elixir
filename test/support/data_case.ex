@@ -28,7 +28,7 @@ defmodule SlidingNumbers.DataCase do
   end
 
   setup tags do
-    SlidingNumbers.DataCase.setup_sandbox(tags)
+    # SlidingNumbers.DataCase.setup_sandbox(tags)
     :ok
   end
 

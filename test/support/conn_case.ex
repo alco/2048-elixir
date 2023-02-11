@@ -32,7 +32,7 @@ defmodule SlidingNumbersWeb.ConnCase do
   end
 
   setup tags do
-    SlidingNumbers.DataCase.setup_sandbox(tags)
+    # SlidingNumbers.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end
