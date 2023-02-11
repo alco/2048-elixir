@@ -10,18 +10,9 @@ defmodule SlidingNumbersWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", SlidingNumbersWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", GameLive
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", SlidingNumbersWeb do
-  #   pipe_through :api
-  # end
 end
