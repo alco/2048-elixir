@@ -2,6 +2,7 @@ defmodule SlidingNumbers.Game.GridTest do
   use ExUnit.Case, async: true
 
   alias SlidingNumbers.Game.Grid
+  use Grid.Direction
 
   describe "new()" do
     test "creates a grid with the given size" do
@@ -269,7 +270,7 @@ defmodule SlidingNumbers.Game.GridTest do
     ]
 
     Enum.each(test_grids, fn {input, expected} ->
-      assert {:ok, grid} = input |> Grid.from_list!() |> Grid.make_move(:right)
+      assert {:ok, grid} = input |> Grid.from_list!() |> Grid.make_move(right())
 
       # Verify that the grid contains a cell with number 1 in it
       one_coord = Grid.find_n_coord(grid, 1)
@@ -301,7 +302,7 @@ defmodule SlidingNumbers.Game.GridTest do
     ]
 
     Enum.each(test_grids, fn {input, expected} ->
-      assert {:ok, grid} = input |> Grid.from_list!() |> Grid.make_move(:right)
+      assert {:ok, grid} = input |> Grid.from_list!() |> Grid.make_move(right())
       assert {input, Grid.to_list(grid)} == {input, expected}
     end)
   end

@@ -6,6 +6,7 @@ defmodule SlidingNumbers.Game.Grid do
   defstruct [:size, :cells, :empty_set]
 
   alias __MODULE__, as: Grid
+  use Grid.Direction
 
   @typedoc """
   Grid is the core data structure of the game.
@@ -24,11 +25,6 @@ defmodule SlidingNumbers.Game.Grid do
   A pair of coordinates used to look up and update cells in the grid.
   """
   @type coord :: {non_neg_integer, non_neg_integer}
-
-  @typedoc """
-  The direction in which to shift all numbers on a grid.
-  """
-  @type direction :: :left | :right | :up | :down
 
   @doc """
   Create a new grid of the given size.
@@ -74,8 +70,8 @@ defmodule SlidingNumbers.Game.Grid do
   If none of the above pans out, the game is lost and `{:lost, <grid>}` is
   returned.
   """
-  @spec make_move(t, direction) :: {:ok | :won | :lost, t}
-  def make_move(%Grid{} = grid, direction) when direction in [:left, :right, :up, :down] do
+  @spec make_move(t, Direction.t()) :: {:ok | :won | :lost, t}
+  def make_move(%Grid{} = grid, direction) when is_direction(direction) do
     next_grid = shift_numbers(grid, direction)
 
     cond do
@@ -109,14 +105,14 @@ defmodule SlidingNumbers.Game.Grid do
 
   # Shift all numbers on the grid in the specified direction and populate grid's
   # empty_set.
-  @spec shift_numbers(t, direction) :: t
+  @spec shift_numbers(t, Direction.t()) :: t
   defp shift_numbers(grid, direction) do
     new_coords =
       case direction do
-        :right -> calculate_shifted_coords(grid, 1, 0)
-        :left -> calculate_shifted_coords(grid, -1, 0)
-        :up -> calculate_shifted_coords(grid, 0, -1)
-        :down -> calculate_shifted_coords(grid, 0, 1)
+        right() -> calculate_shifted_coords(grid, 1, 0)
+        left() -> calculate_shifted_coords(grid, -1, 0)
+        up() -> calculate_shifted_coords(grid, 0, -1)
+        down() -> calculate_shifted_coords(grid, 0, 1)
       end
 
     cells = create_cells(grid.size, new_coords)
@@ -191,8 +187,8 @@ defmodule SlidingNumbers.Game.Grid do
   end
 
   defp check_loss_condition(grid) do
-    if MapSet.size(grid.empty_set) > 0 or valid_move?(grid, :right) or valid_move?(grid, :left) or
-         valid_move?(grid, :up) or valid_move?(grid, :down) do
+    if MapSet.size(grid.empty_set) > 0 or valid_move?(grid, right()) or valid_move?(grid, left()) or
+         valid_move?(grid, up()) or valid_move?(grid, down()) do
       {:ok, grid}
     else
       {:lost, grid}
@@ -272,19 +268,19 @@ defmodule SlidingNumbers.Game.Grid do
 
   @doc false
   # Test helper.
-  def shift_right(grid), do: shift_numbers(grid, :right)
+  def shift_right(grid), do: shift_numbers(grid, right())
 
   @doc false
   # Test helper.
-  def shift_left(grid), do: shift_numbers(grid, :left)
+  def shift_left(grid), do: shift_numbers(grid, left())
 
   @doc false
   # Test helper.
-  def shift_up(grid), do: shift_numbers(grid, :up)
+  def shift_up(grid), do: shift_numbers(grid, up())
 
   @doc false
   # Test helper.
-  def shift_down(grid), do: shift_numbers(grid, :down)
+  def shift_down(grid), do: shift_numbers(grid, down())
 
   ###
   # Utility functions
