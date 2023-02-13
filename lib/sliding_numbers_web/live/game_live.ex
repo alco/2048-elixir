@@ -4,7 +4,8 @@ defmodule SlidingNumbersWeb.GameLive do
   alias SlidingNumbers.Game.Grid
   use Grid.Direction
 
-  def mount(_params, _session, socket) do
+  def mount(_params, %{"game_seed" => game_seed}, socket) do
+    Grid.seed(game_seed)
     grid = Grid.new(5)
     # grid =
     #   Grid.from_list!([

@@ -8,6 +8,8 @@ defmodule SlidingNumbersWeb.Router do
     plug :put_root_layout, {SlidingNumbersWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+
+    plug SlidingNumbersWeb.Plugs.IdentifyUser
   end
 
   scope "/", SlidingNumbersWeb do

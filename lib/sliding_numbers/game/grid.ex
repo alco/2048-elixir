@@ -26,6 +26,12 @@ defmodule SlidingNumbers.Game.Grid do
   """
   @type coord :: {non_neg_integer, non_neg_integer}
 
+  @spec seed(integer) :: :ok
+  def seed(seed) when is_integer(seed) do
+    _ = :rand.seed(:default, seed)
+    :ok
+  end
+
   @doc """
   Create a new grid of the given size.
 
