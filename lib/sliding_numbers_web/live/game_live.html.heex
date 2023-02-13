@@ -39,28 +39,37 @@
   </defs>
 </svg>
 
-<div class="pt-40" phx-window-keyup="keyup">
-  <% canvas_size = @game_grid.size * 10
+<div class="pt-32" phx-window-keyup="keyup">
+  <% canvas_size = @grid_size * 10
   view_box = "0 0 #{canvas_size} #{canvas_size}"
   svg_width = canvas_size * 10 %>
 
   <svg
+    id="game-grid"
     class="mx-auto"
     viewBox={view_box}
     width={svg_width}
     phx-window-keydown="keydown"
-    phx-throttle="100"
+    phx-throttle="300"
   >
     <rect width={canvas_size} height={canvas_size} fill="url(#gridRect)" />
 
-    <%= for row <- 0..@game_grid.size-1, col <- 0..@game_grid.size-1 do %>
-      <% n = Grid.get(@game_grid, {col, row})
+    <%= for row <- 0..@grid_size-1, col <- 0..@grid_size-1 do %>
+      <% n = Grid.get(@prev_grid, {col, row})
       href = "#cell-#{n}"
       x = col * 10
       y = row * 10
       origin = "#{x + 4.75} #{y + 4.75}" %>
 
-      <use :if={n > 0} class="new-cell" href={href} x={x} y={y} transform-origin={origin} />
+      <use
+        :if={n > 0}
+        href={href}
+        x={x}
+        y={y}
+        transform-origin={origin}
+        data-row={row}
+        data-col={col}
+      />
     <% end %>
   </svg>
 </div>

@@ -6,28 +6,20 @@ defmodule SlidingNumbersWeb.GameLive do
 
   def mount(_params, %{"game_seed" => game_seed}, socket) do
     Grid.seed(game_seed)
-    grid = Grid.new(5)
-    # grid =
-    #   Grid.from_list!([
-    #     [1, 2, 4, 8, 16, 32],
-    #     [0, 0, 0, 0, 0, 0],
-    #     [16, 32, 64, 128, 256, 512],
-    #     [0, 0, 0, 0, 0, 0],
-    #     [256, 512, 1024, 2048, 0, 0],
-    #     [0, 0, 0, 0, 0, 0]
-    #   ])
-
-    socket = assign(socket, :game_grid, grid)
-    Grid.pretty_print(socket.assigns.game_grid)
-    {:ok, socket}
+    grid = Grid.new(6)
+    {:ok, assign(socket, grid_size: grid.size, prev_grid: grid, grid: grid)}
   end
 
-  def handle_event("keydown", %{"key" => _key}, %{assigns: %{keydown?: true}} = socket) do
-    # Ignore all keydown events until the next keyup resets the @keydown? assign back to false.
+  def handle_event(
+        "keydown",
+        %{"key" => _key},
+        %{private: %{game_live: %{keydown?: true}}} = socket
+      ) do
+    # Ignore all keydown events until the next keyup resets the keydown? field back to false.
     {:noreply, socket}
   end
 
-  def handle_event("keydown", %{"key" => key}, %{assigns: %{game_grid: grid}} = socket)
+  def handle_event("keydown", %{"key" => key}, %{assigns: %{grid: grid}} = socket)
       when key in ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"] do
     direction =
       case key do
@@ -39,9 +31,12 @@ defmodule SlidingNumbersWeb.GameLive do
 
     {tag, next_grid} = Grid.make_move(grid, direction)
     IO.puts("Post-move result: #{tag}")
-    Grid.pretty_print(next_grid)
 
-    {:noreply, assign(socket, %{keydown?: true, game_grid: next_grid})}
+    {:noreply,
+     socket
+     |> update_private(:keydown?, true)
+     |> assign(prev_grid: grid, grid: next_grid)
+     |> push_event("make-move", %{transitions: encode_transitions(next_grid.transitions)})}
   end
 
   def handle_event("keydown", _event, socket) do
@@ -50,6 +45,21 @@ defmodule SlidingNumbersWeb.GameLive do
   end
 
   def handle_event("keyup", %{"key" => _key}, socket) do
-    {:noreply, assign(socket, :keydown?, false)}
+    {:noreply, update_private(socket, :keydown?, false)}
   end
+
+  defp update_private(socket, key, val) do
+    private = Map.update(socket.private, :game_live, %{key => val}, &Map.put(&1, key, val))
+    %{socket | private: private}
+  end
+
+  defp encode_transitions(transitions), do: Enum.map(transitions, &encode_transition/1)
+
+  defp encode_transition({:shift, {xfrom, yfrom}, {xto, yto}, _n}),
+    do: %{kind: "shift", x: xfrom, y: yfrom, xTo: xto, yTo: yto}
+
+  defp encode_transition({:appear, {x, y}, n}), do: %{kind: "appear", x: x, y: y, n: n}
+
+  defp encode_transition({:merge, {xfrom, yfrom}, {xto, yto}, n}),
+    do: %{kind: "merge", x: xfrom, y: yfrom, xTo: xto, yTo: yto, n: n}
 end

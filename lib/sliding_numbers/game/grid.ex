@@ -3,7 +3,7 @@ defmodule SlidingNumbers.Game.Grid do
   The grid data structure and core game logic.
   """
 
-  defstruct [:size, :cells, :empty_set]
+  defstruct [:size, :cells, :empty_set, :transitions]
 
   alias __MODULE__, as: Grid
   use Grid.Direction
@@ -19,12 +19,22 @@ defmodule SlidingNumbers.Game.Grid do
   The `empty_set` field is used like a virtual field on an Ecto.Schema would be
   used. It temporarily stores a set of all empty grid cells.
   """
-  @type t :: %Grid{size: pos_integer, cells: tuple, empty_set: MapSet.t() | nil}
+  @type t :: %Grid{
+          size: pos_integer,
+          cells: tuple,
+          empty_set: MapSet.t() | nil,
+          transitions: list() | nil
+        }
 
   @typedoc """
   A pair of coordinates used to look up and update cells in the grid.
   """
   @type coord :: {non_neg_integer, non_neg_integer}
+
+  @typep value :: pos_integer
+
+  @typep transition ::
+           {:shift, coord, coord, value} | {:merge, coord, value} | {:appear, coord, value}
 
   @spec seed(integer) :: :ok
   def seed(seed) when is_integer(seed) do
@@ -103,8 +113,12 @@ defmodule SlidingNumbers.Game.Grid do
         # a copy of the cells tuple. In practical terms, though, we're dealing
         # with very small grid sizes, so it's an alright trade-off to make as
         # opposed to making the implementation `shift_numbers()` even more complicated.
-        next_grid = put(next_grid, coord, 1)
-        next_grid = %{next_grid | empty_set: MapSet.delete(next_grid.empty_set, coord)}
+        next_grid = %{
+          put(next_grid, coord, 1)
+          | empty_set: MapSet.delete(next_grid.empty_set, coord),
+            transitions: [transition_appear(coord, 1) | next_grid.transitions]
+        }
+
         check_loss_condition(next_grid)
     end
   end
@@ -113,7 +127,7 @@ defmodule SlidingNumbers.Game.Grid do
   # empty_set.
   @spec shift_numbers(t, Direction.t()) :: t
   defp shift_numbers(grid, direction) do
-    new_coords =
+    {new_coords, transitions} =
       case direction do
         right() -> calculate_shifted_coords(grid, 1, 0)
         left() -> calculate_shifted_coords(grid, -1, 0)
@@ -124,7 +138,7 @@ defmodule SlidingNumbers.Game.Grid do
     cells = create_cells(grid.size, new_coords)
     empty_set = create_empty_set(grid.size, new_coords)
 
-    %{grid | cells: cells, empty_set: empty_set}
+    %{grid | cells: cells, empty_set: empty_set, transitions: transitions}
   end
 
   # Calculate new positions for all grid numbers.
@@ -136,7 +150,8 @@ defmodule SlidingNumbers.Game.Grid do
   # The algorithm implemented here works both for horizontal and vertical shifts.
   # `xdir` and `ydir` are used to define the direction and to
   # increment/decrement the loop counter maintained by `shift_loop()`.
-  @spec calculate_shifted_coords(t, -1 | 0 | 1, -1 | 0 | 1) :: [{coord, pos_integer}]
+  @spec calculate_shifted_coords(t, -1 | 0 | 1, -1 | 0 | 1) ::
+          {[{coord, pos_integer}], [transition]}
   defp calculate_shifted_coords(grid, xdir, ydir) do
     dir = xdir + ydir
 
@@ -155,40 +170,56 @@ defmodule SlidingNumbers.Game.Grid do
     #
     # The variables `dir` and `limit` are working together here to drive the
     # nested loop counter either from 0 to grid.size-1 or in the other direction.
-    Enum.flat_map(0..(grid.size - 1), fn i ->
-      limit =
-        case dir do
-          -1 -> 0
-          1 -> grid.size - 1
-        end
+    {list_of_accs, list_of_trans} =
+      Enum.reduce(0..(grid.size - 1), {[], []}, fn i, {list_of_accs, list_of_trans} ->
+        limit =
+          case dir do
+            -1 -> 0
+            1 -> grid.size - 1
+          end
 
-      shift_loop(grid, dir, coord_fun, i, limit, limit, nil, [])
-    end)
+        {acc, transitions} = shift_loop(grid, dir, coord_fun, i, limit, limit, nil, [], [])
+        {[acc | list_of_accs], [transitions | list_of_trans]}
+      end)
+
+    {List.flatten(list_of_accs), List.flatten(list_of_trans)}
   end
 
-  defp shift_loop(grid, _, _, _, j, _, _, acc) when j < 0 or j == grid.size, do: acc
+  defp shift_loop(grid, _, _, _, j, _, _, acc, trans) when j < 0 or j == grid.size,
+    do: {acc, trans}
 
-  defp shift_loop(grid, dir, coord_fun, i, j, limit, merge_candidate, acc) do
-    case {get(grid, coord_fun.(i, j)), merge_candidate} do
+  defp shift_loop(grid, dir, coord_fun, i, j, limit, merge_candidate, acc, trans) do
+    current_coord = coord_fun.(i, j)
+
+    case {get(grid, current_coord), merge_candidate} do
       {0, _} ->
-        shift_loop(grid, dir, coord_fun, i, j - dir, limit, merge_candidate, acc)
+        shift_loop(grid, dir, coord_fun, i, j - dir, limit, merge_candidate, acc, trans)
 
-      {n, {{col, row}, n}} ->
-        # The current cell has the same number as the merge candidate from a previous loop iteration.
-        # This means we have a merging of two adjacent cells, so we replace the
-        # number latest coordinate-number pair in `acc` with its doubled value.
-        [_ | t] = acc
+      {n, {merge_coord, n}} ->
+        # The current cell has the same number as the merge candidate from a
+        # previous loop iteration.  This means we have a merging of two adjacent
+        # cells, so we double the value in the most recently added
+        # coordinate-number pair in `acc`.
         merge_candidate = nil
-        acc = [{{col, row}, n * 2} | t]
-        shift_loop(grid, dir, coord_fun, i, j - dir, limit, merge_candidate, acc)
+        acc = List.replace_at(acc, 0, {merge_coord, n * 2})
+
+        trans = [
+          transition_merge(current_coord, merge_coord, n * 2),
+          transition_shift(current_coord, merge_coord, n)
+          | trans
+        ]
+
+        shift_loop(grid, dir, coord_fun, i, j - dir, limit, merge_candidate, acc, trans)
 
       {n, _} ->
         # At each iteration of the loop, we're keeping track of the last seen
         # number so that on the next iteration we can check if a merging of two
         # numbers is going to occur.
-        merge_candidate = {coord_fun.(i, limit), n}
+        new_coord = coord_fun.(i, limit)
+        merge_candidate = {new_coord, n}
         acc = [merge_candidate | acc]
-        shift_loop(grid, dir, coord_fun, i, j - dir, limit - dir, merge_candidate, acc)
+        trans = [transition_shift(current_coord, new_coord, n) | trans]
+        shift_loop(grid, dir, coord_fun, i, j - dir, limit - dir, merge_candidate, acc, trans)
     end
   end
 
@@ -367,4 +398,8 @@ defmodule SlidingNumbers.Game.Grid do
 
   # Same as `coord_to_index/2` but convert to a one-based index for use with Erlang functions.
   defp coord_to_erl_index(coord, size), do: 1 + coord_to_index(coord, size)
+
+  defp transition_shift(from_coord, to_coord, n), do: {:shift, from_coord, to_coord, n}
+  defp transition_appear(coord, n), do: {:appear, coord, n}
+  defp transition_merge(from_coord, to_coord, n), do: {:merge, from_coord, to_coord, n}
 end

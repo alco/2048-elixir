@@ -8,19 +8,3 @@
     font-size: 5px;
     font-weight: bold;
 }
-
-@keyframes appear {
-    0% {
-        opacity: 0;
-        scale: 0.1
-    }
-
-    100% {
-        opacity: 1;
-        scale: 1
-    }
-}
-
-.new-cell {
-    animation: .3s appear ease-out;
-}
