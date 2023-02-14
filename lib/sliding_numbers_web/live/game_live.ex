@@ -6,9 +6,15 @@ defmodule SlidingNumbersWeb.GameLive do
 
   @default_grid_size 5
 
-  def mount(params, %{"game_seed" => game_seed}, socket) do
-    Grid.seed(game_seed)
+  def mount(params, _session, socket) do
+    if not connected?(socket) do
+      {:ok, push_navigate(socket, to: "/")}
+    else
+      do_mount(params, socket)
+    end
+  end
 
+  defp do_mount(params, socket) do
     grid_size =
       with size_str when not is_nil(size_str) <- params["grid_size"],
            {size, ""} <- Integer.parse(size_str) do
