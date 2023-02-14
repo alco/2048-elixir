@@ -9,7 +9,7 @@ To start the game server for the first time, fetch mix dependencies and start
 the Phoenix server:
 
 ```
-$ mix deps.get
+$ mix setup
 $ mix phx.server
 ```
 
@@ -21,8 +21,8 @@ Then navigate to http://localhost:4000.
 Choose the grid size and click on the _Play!_ button to start the game.
 
 <div>
-  <img src="assets/menu.png">
-  <img src="assets/game.png">
+  <img src="assets/menu.png" width="400">
+  <img src="assets/game.png" width="400">
 </div>
 
 The game continues until a tile with number 2048 is created, which means you
