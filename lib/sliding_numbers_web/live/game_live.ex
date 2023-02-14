@@ -25,7 +25,13 @@ defmodule SlidingNumbersWeb.GameLive do
 
     grid = Grid.new(grid_size)
 
-    {:ok, assign(socket, grid_size: grid_size, prev_grid: grid, grid: grid)}
+    {:ok, assign(socket, grid_size: grid_size, prev_grid: grid, grid: grid, game_over: nil)}
+  end
+
+  def handle_event(_event, _params, %{assigns: %{game_over: game_over}} = socket)
+      when not is_nil(game_over) do
+    # Ignore all events if the game is already over.
+    {:noreply, socket}
   end
 
   def handle_event(
@@ -48,16 +54,16 @@ defmodule SlidingNumbersWeb.GameLive do
       end
 
     {tag, next_grid} = Grid.make_move(grid, direction)
-    IO.puts("Post-move result: #{tag}")
 
     {:noreply,
      socket
      |> update_private(:keydown?, true)
      |> assign(prev_grid: grid, grid: next_grid)
-     |> push_event("make-move", %{transitions: encode_transitions(next_grid.transitions)})}
+     |> push_event("make-move", %{transitions: encode_transitions(next_grid.transitions)})
+     |> check_game_over(tag)}
   end
 
-  def handle_event("keydown", _event, socket) do
+  def handle_event("keydown", _params, socket) do
     # Ignore all other keys not handled above.
     {:noreply, socket}
   end
@@ -66,7 +72,7 @@ defmodule SlidingNumbersWeb.GameLive do
     {:noreply, update_private(socket, :keydown?, false)}
   end
 
-  def handle_event("end-game", _event, socket) do
+  def handle_event("end-game", _params, socket) do
     {:noreply, push_navigate(socket, to: "/")}
   end
 
@@ -84,4 +90,7 @@ defmodule SlidingNumbersWeb.GameLive do
 
   defp encode_transition({:merge, {xfrom, yfrom}, {xto, yto}, n}),
     do: %{kind: "merge", x: xfrom, y: yfrom, xTo: xto, yTo: yto, n: n}
+
+  defp check_game_over(socket, :ok), do: socket
+  defp check_game_over(socket, won_or_lost), do: assign(socket, :game_over, won_or_lost)
 end

@@ -1,80 +1,64 @@
-<svg width="0" height="0">
-  <defs>
-    <%= black = "#3e3e3e"
-    white = "#efefef"
+<div class="flex flex-col">
+  <div class="pt-32" phx-window-keyup="keyup">
+    <% canvas_size = @grid_size * 10
+    view_box = "0 0 #{canvas_size} #{canvas_size}" %>
 
-    for {n, color, text_color, text_style} <- [
-      {1, "rgb(227,252,210)", black, nil},
-      {2, "rgb(204,223,209)", black, nil},
-      {4, "rgb(184,235,197)", black, nil},
-      {8, "rgb(158,221,161)", black, nil},
-      {16, "rgb(113,194,186)", black, "font-size: 4.7px"},
-      {32, "rgb(78,179,211)", white, "font-size: 4.7px"},
-      {64, "rgb(43,140,190)", white, "font-size: 4.7px"},
-      {128, "rgb(8,104,172)", white, "font-size: 4px; font-weight: 800"},
-      {256, "rgb(8,84,152)", white, "font-size: 4px; font-weight: 800"},
-      {512, "rgb(206,18,86)", white, "font-size: 4px; font-weight: 800"},
-      {1024, "rgb(174,1,126)", white, "font-size: 3.2px; font-weight: 800"},
-      {2048, "rgb(122,1,119)", white, "font-size: 3.2px; font-weight: 800"}
-    ] do %>
-      <symbol id={"cell-#{n}"}>
-        <rect width="9.5" height="9.5" rx="1" fill={color} />
-        <text
-          class="cell-text"
-          x="4.75"
-          y="4.75"
-          text-anchor="middle"
-          dominant-baseline="central"
-          fill={text_color}
-          style={text_style}
-        >
-          <%= n %>
-        </text>
-      </symbol>
-    <% end %>
-  </defs>
-</svg>
+    <svg
+      id="game-grid"
+      class="mx-auto"
+      viewBox={view_box}
+      width={canvas_size * 10}
+      phx-window-keydown="keydown"
+      phx-throttle="300"
+    >
+      <rect width={canvas_size} height={canvas_size} fill="url(#gridRect)" />
 
-<div class="pt-32" phx-window-keyup="keyup">
-  <% canvas_size = @grid_size * 10
-  view_box = "0 0 #{canvas_size} #{canvas_size}" %>
+      <%= for row <- 0..@grid_size-1, col <- 0..@grid_size-1 do %>
+        <% n = Grid.get(@prev_grid, {col, row})
+        href = "#cell-#{n}"
+        x = col * 10
+        y = row * 10
+        origin = "#{x + 4.75} #{y + 4.75}" %>
 
-  <svg
-    id="game-grid"
-    class="mx-auto"
-    viewBox={view_box}
-    width={canvas_size * 10}
-    phx-window-keydown="keydown"
-    phx-throttle="300"
-  >
-    <rect width={canvas_size} height={canvas_size} fill="url(#gridRect)" />
+        <use
+          :if={n > 0}
+          href={href}
+          x={x}
+          y={y}
+          transform-origin={origin}
+          data-row={row}
+          data-col={col}
+        />
+      <% end %>
+    </svg>
+  </div>
 
-    <%= for row <- 0..@grid_size-1, col <- 0..@grid_size-1 do %>
-      <% n = Grid.get(@prev_grid, {col, row})
-      href = "#cell-#{n}"
-      x = col * 10
-      y = row * 10
-      origin = "#{x + 4.75} #{y + 4.75}" %>
+  <%= if @game_over do %>
+    <div class="mt-4 flex flex-col gap-4 items-center">
+      <div class="game-over-animation text-[30px] font-black">
+        <%= if @game_over == :won do %>
+          <span class="text-lime-600">Congratulations! You win!</span>
+        <% else %>
+          <span class="text-red-500">Sorry, you lose.</span>
+        <% end %>
+      </div>
 
-      <use
-        :if={n > 0}
-        href={href}
-        x={x}
-        y={y}
-        transform-origin={origin}
-        data-row={row}
-        data-col={col}
-      />
-    <% end %>
-  </svg>
-</div>
-
-<div class="mt-10">
-  <.button
-    class="block mx-auto text-2xl bg-orange-300 hover:bg-orange-400 text-orange-800"
-    phx-click="end-game"
-    data-confirm="Are you sure you want to end the game?"
-  >
-    End game
-  </.button>
+      <.link
+        navigate={~p"/"}
+        class="block mx-auto text-2xl font-bold px-5 py-2 rounded-lg bg-lime-300 hover:bg-lime-400 text-lime-800 game-over-menu-animation"
+      >
+        Main menu
+      </.link>
+    </div>
+  <% else %>
+    <div class="mt-10">
+      <.button
+        class="block mx-auto px-4 py-4 text-2xl bg-orange-300 hover:bg-orange-400 text-orange-800"
+        phx-click="end-game"
+        data-confirm="Are you sure you want to end the game?"
+      >
+        End game
+      </.button>
+    </div>
+  <% end %>
 </div>

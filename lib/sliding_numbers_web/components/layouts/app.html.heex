@@ -49,6 +49,39 @@
         <pattern id="gridRect" patternUnits="userSpaceOnUse" width="10" height="10">
           <rect x="0" y="0" width="9.5" height="9.5" rx="1" fill="#efedf0" />
         </pattern>
+
+        <% black = "#3e3e3e"
+        white = "#efefef" %>
+
+        <%= for {n, color, text_color, text_style} <- [
+          {1, "rgb(227,252,210)", black, nil},
+          {2, "rgb(204,223,209)", black, nil},
+          {4, "rgb(184,235,197)", black, nil},
+          {8, "rgb(158,221,161)", black, nil},
+          {16, "rgb(113,194,186)", black, "font-size: 4.7px"},
+          {32, "rgb(78,179,211)", white, "font-size: 4.7px"},
+          {64, "rgb(43,140,190)", white, "font-size: 4.7px"},
+          {128, "rgb(8,104,172)", white, "font-size: 4px; font-weight: 800"},
+          {256, "rgb(8,84,152)", white, "font-size: 4px; font-weight: 800"},
+          {512, "rgb(206,18,86)", white, "font-size: 4px; font-weight: 800"},
+          {1024, "rgb(174,1,126)", white, "font-size: 3.2px; font-weight: 800"},
+          {2048, "rgb(122,1,119)", white, "font-size: 3.2px; font-weight: 800"}
+        ] do %>
+          <symbol id={"cell-#{n}"}>
+            <rect width="9.5" height="9.5" rx="1" fill={color} />
+            <text
+              class="cell-text"
+              x="4.75"
+              y="4.75"
+              text-anchor="middle"
+              dominant-baseline="central"
+              fill={text_color}
+              style={text_style}
+            >
+              <%= n %>
+            </text>
+          </symbol>
+        <% end %>
       </defs>
     </svg>
 
