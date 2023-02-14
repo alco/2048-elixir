@@ -1,9 +1,5 @@
 <svg width="0" height="0">
   <defs>
-    <pattern id="gridRect" patternUnits="userSpaceOnUse" width="10" height="10">
-      <rect x="0" y="0" width="9.5" height="9.5" rx="1" fill="#efedf0" />
-    </pattern>
-
     <%= black = "#3e3e3e"
     white = "#efefef"
 
@@ -41,14 +37,13 @@
 
 <div class="pt-32" phx-window-keyup="keyup">
   <% canvas_size = @grid_size * 10
-  view_box = "0 0 #{canvas_size} #{canvas_size}"
-  svg_width = canvas_size * 10 %>
+  view_box = "0 0 #{canvas_size} #{canvas_size}" %>
 
   <svg
     id="game-grid"
     class="mx-auto"
     viewBox={view_box}
-    width={svg_width}
+    width={canvas_size * 10}
     phx-window-keydown="keydown"
     phx-throttle="300"
   >

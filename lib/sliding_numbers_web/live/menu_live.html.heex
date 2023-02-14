@@ -1,0 +1,50 @@
+<div class="mt-20 px-10 py-5 flex flex-col items-stretch ">
+  <div class="flex flex-col items-center">
+    <h1 class="text-[40px] font-bold">Game mode</h1>
+    <div class="mt-2 flex justify-between text-2xl font-bold text-lime-100">
+      <div class="mx-4 px-4 py-2 cursor-pointer rounded-md bg-lime-500">Single player</div>
+      <!--
+      <div class="mx-4 px-4 py-2 cursor-pointer rounded-md bg-lime-300 text-lime-50">
+        2-player co-op
+      </div>
+      -->
+    </div>
+  </div>
+
+  <div class="mt-10 flex flex-col items-stretch">
+    <h1 class="text-[40px] font-bold self-center">Grid size</h1>
+    <div class="mt-2 flex justify-between text-2xl font-bold">
+      <%= for size <- 2..10 do %>
+        <% bg_color =
+          if size == @grid_size do
+            "bg-lime-500 text-lime-100"
+          else
+            "bg-lime-300 hover:bg-lime-400 text-lime-700"
+          end %>
+        <div
+          class={"px-4 py-2 cursor-pointer rounded-md #{bg_color}"}
+          phx-value-size={size}
+          phx-click="select-size"
+        >
+          <%= size %>
+        </div>
+      <% end %>
+    </div>
+
+    <% canvas_size = @grid_size * 10
+    view_box = "0 0 #{canvas_size} #{canvas_size}" %>
+
+    <svg viewBox={view_box} width="200" class="mt-5 self-center">
+      <rect width={canvas_size} height={canvas_size} fill="url(#gridRect)" />
+    </svg>
+  </div>
+
+  <div class="mt-12 self-center">
+    <.link
+      navigate={~p"/play?#{[grid_size: @grid_size]}"}
+      class="text-[60px] px-5 py-2 rounded-lg bg-lime-300 hover:bg-lime-400 text-lime-800"
+    >
+      Play!
+    </.link>
+  </div>
+</div>

@@ -4,10 +4,22 @@ defmodule SlidingNumbersWeb.GameLive do
   alias SlidingNumbers.Game.Grid
   use Grid.Direction
 
-  def mount(_params, %{"game_seed" => game_seed}, socket) do
+  @default_grid_size 5
+
+  def mount(params, %{"game_seed" => game_seed}, socket) do
     Grid.seed(game_seed)
-    grid = Grid.new(6)
-    {:ok, assign(socket, grid_size: grid.size, prev_grid: grid, grid: grid)}
+
+    grid_size =
+      with size_str when not is_nil(size_str) <- params["grid_size"],
+           {size, ""} <- Integer.parse(size_str) do
+        size
+      else
+        _ -> @default_grid_size
+      end
+
+    grid = Grid.new(grid_size)
+
+    {:ok, assign(socket, grid_size: grid_size, prev_grid: grid, grid: grid)}
   end
 
   def handle_event(

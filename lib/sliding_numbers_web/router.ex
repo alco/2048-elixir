@@ -15,6 +15,7 @@ defmodule SlidingNumbersWeb.Router do
   scope "/", SlidingNumbersWeb do
     pipe_through :browser
 
-    live "/", GameLive
+    live "/", MenuLive
+    live "/play", GameLive
   end
 end
