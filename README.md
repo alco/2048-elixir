@@ -26,8 +26,8 @@ Choose the grid size and click on the _Play!_ button to start the game.
 </div>
 
 The game continues until a tile with number 2048 is created, which means you
-have won. The game is lost when no more free cells remain in grid and there are
-no valid moves left.
+have won. The game is lost when no more free cells remain on the grid and there
+are no valid moves left.
 
 
 ## Multi-player mode
