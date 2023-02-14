@@ -102,9 +102,8 @@ defmodule SlidingNumbers.Game.Grid do
   Put a new value into the grid cell at the given coordinates.
   """
   @spec put(t, coord, cell_value) :: t
-  def put(%Grid{} = grid, {_x, _y} = coord, n) when is_integer(n) and n > 0 do
-    %{grid | cells: put_elem(grid.cells, coord_to_index(coord, grid.size), n)}
-  end
+  def put(%Grid{} = grid, {_x, _y} = coord, n) when is_integer(n) and n > 0,
+    do: put_internal(grid, coord, n)
 
   @doc """
   Shift numbers in the specified direction and check for a game over condition.
@@ -352,25 +351,32 @@ defmodule SlidingNumbers.Game.Grid do
     |> Enum.each(&IO.inspect/1)
   end
 
+  ###
+  # Test helpers
+  ###
+
   @doc false
-  # Test helper.
   def shift_right(grid), do: shift_numbers(grid, right())
 
   @doc false
-  # Test helper.
   def shift_left(grid), do: shift_numbers(grid, left())
 
   @doc false
-  # Test helper.
   def shift_up(grid), do: shift_numbers(grid, up())
 
   @doc false
-  # Test helper.
   def shift_down(grid), do: shift_numbers(grid, down())
 
   ###
   # Utility functions
   ###
+
+  @doc false
+  # Same as the public function put() except this one does not constraint the value being put.
+  @spec put_internal(t, coord, integer) :: t
+  def put_internal(grid, coord, n) do
+    %{grid | cells: put_elem(grid.cells, coord_to_index(coord, grid.size), n)}
+  end
 
   @doc """
   Find the coordinates of the first grid cell with the value `n`.
