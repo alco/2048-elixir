@@ -7,9 +7,6 @@
 # General application configuration
 import Config
 
-config :sliding_numbers,
-  ecto_repos: [SlidingNumbers.Repo]
-
 # Configures the endpoint
 config :sliding_numbers, SlidingNumbersWeb.Endpoint,
   url: [host: "localhost"],

@@ -1,15 +1,5 @@
 import Config
 
-# Configure your database
-config :sliding_numbers, SlidingNumbers.Repo,
-  username: "sliding_numbers",
-  password: "",
-  hostname: "localhost",
-  database: "sliding_numbers_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
