@@ -4,13 +4,36 @@ This is a sliding tile puzzle game implemented in Elixir.
 
 _#Elixir_ _#Phoenix_ _#LiveView_ _#SVG_
 
+
+To start the game server for the first time, fetch mix dependencies and start
+the Phoenix server:
+
+```
+$ mix deps.get
+$ mix phx.server
+```
+
+Then navigate to http://localhost:4000.
+
+
 ## Single-player mode
 
-_Not yet implemented._
+Choose the grid size and click on the _Play!_ button to start the game.
+
+<div>
+  <img src="assets/menu.png">
+  <img src="assets/game.png">
+</div>
+
+The game continues until a tile with number 2048 is created, which means you
+have won. The game is lost when no more free cells remain in grid and there are
+no valid moves left.
+
 
 ## Multi-player mode
 
 _Not yet implemented._
+
 
 ## Interactive shell mode
 
