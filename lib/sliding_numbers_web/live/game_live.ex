@@ -60,6 +60,10 @@ defmodule SlidingNumbersWeb.GameLive do
     {:noreply, update_private(socket, :keydown?, false)}
   end
 
+  def handle_event("end-game", _event, socket) do
+    {:noreply, push_navigate(socket, to: "/")}
+  end
+
   defp update_private(socket, key, val) do
     private = Map.update(socket.private, :game_live, %{key => val}, &Map.put(&1, key, val))
     %{socket | private: private}
