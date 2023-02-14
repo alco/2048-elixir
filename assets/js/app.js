@@ -39,7 +39,7 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
-import { SVG } from '@svgdotjs/svg.js'
+import { SVG } from '../vendor/svg.3.1.2.esm.min.js'
 window.SVG = SVG
 
 // Taken almost verbatim from https://github.com/svgdotjs/svg.easing.js/blob/3afb24c3acfdb2a492c93da2dfcc5b394aec360d/src/svg.easing.js
